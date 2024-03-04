@@ -19,14 +19,14 @@ app.get('/', async (req, res) => {
     res.render('index', { data: karyawan });
 });
 
-// Add or Update Data
+
 app.post('/save', (req, res) => {
     const { id, nama, jabatan } = req.body;
 
     res.redirect('/');
 });
 
-// Delete Data
+
 app.post('/delete', (req, res) => {
     const { id } = req.body;
     res.redirect('/');
@@ -84,6 +84,64 @@ app.delete('/karyawan/:id', async (req, res) => {
       message :'Data berhasil di hapus',
     });
 });
+
+app.get('/api/users', async (req, res) => {
+    const users = await db('users').select('*');
+
+    return res.json({
+        data:users
+    });
+
+})
+
+
+app.post('/api/register', async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username dan password harus diisi' });
+    }
+
+    await db('users').insert({
+      username,
+      password,
+    }).returning(['id']).then((result) => {
+      const userId = result[0].id;
+
+      return res.status(201).json({
+        message: 'Registrasi berhasil',
+        userId,
+      });
+    });
+
+
+
+  });
+  
+  // Endpoint untuk login
+  app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+  
+    try {
+      const user = await db('users').where({ username }).first();
+  
+      if (user) {
+        const passwordMatch = user.password === password;
+  
+        if (passwordMatch) {
+          res.status(200).json({ message: 'Login berhasil', userId: user.id });
+        } else {
+          res.status(401).json({ error: 'Login gagal. Periksa kembali username dan password Anda.' });
+        }
+      } else {
+        res.status(401).json({ error: 'Login gagal. Periksa kembali username dan password Anda.' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Gagal melakukan login. Silakan coba lagi.' });
+    }
+
+  });
 
 app.listen(3000, () => {
     console.log('listening on port 3000');

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login/Register Page</title>
+  <style>
+   /* Styling untuk halaman login dan register */
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  form {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+  }
+  
+  h2 {
+    text-align: center;
+    color: #333;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+  }
+  
+  button {
+    background-color: #4caf50;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .switch-form {
+    text-align: center;
+    margin-top: 16px;
+  }
+  
+  .switch-form a {
+    color: #3498db;
+    text-decoration: none;
+  }
+  
+  .switch-form a:hover {
+    text-decoration: underline;
+  }
+  
+  </style>
+</head>
+<body>
+  <form id="loginForm">
+    <h2>Login</h2>
+    <label for="loginUsername">Username:</label>
+    <input type="text" id="loginUsername" name="loginUsername" required>
+
+    <label for="loginPassword">Password:</label>
+    <input type="password" id="loginPassword" name="loginPassword" required>
+
+    <button type="button" onclick="login()">Login</button>
+
+    <div class="switch-form">
+      Don't have an account? <a href="#" onclick="showRegisterForm()">Register</a>
+    </div>
+  </form>
+
+  <form id="registerForm" style="display: none;">
+    <h2>Register</h2>
+    <label for="registerUsername">Username:</label>
+    <input type="text" id="registerUsername" name="registerUsername" required>
+
+    <label for="registerPassword">Password:</label>
+    <input type="password" id="registerPassword" name="registerPassword" required>
+
+    <button type="button" onclick="register()">Register</button>
+
+    <div class="switch-form">
+      Already have an account? <a href="#" onclick="showLoginForm()">Login</a>
+    </div>
+  </form>
+
+  <script>
+
+    function showRegisterForm() {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "block";
+    }
+
+    function showLoginForm() {
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("registerForm").style.display = "none";
+    
+    }
+
+    async function login() {
+      const username = document.getElementById("loginUsername").value;
+      const password = document.getElementById("loginPassword").value;
+
+      try {
+        const response = await fetch(`api/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Login failed');
+        }
+
+        const data = await response.json();
+        console.log('Login response:', data);
+        
+
+        loading.style.display = 'none';
+
+        window.location.href = '/dashboard';
+
+
+      } catch (error) {
+        console.error('Error during login:', error);
+
+      }
+
+
+    }
+
+    async function register() {
+      const username = document.getElementById("registerUsername").value;
+      const password = document.getElementById("registerPassword").value;
+
+      try {
+        const response = await fetch(`api/register`,  {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, password }),
+
+        });
+
+        if (!response.ok) {
+          throw new Error('Register failed');
+        }
+
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+
+        const successMessage = document.getElementById('success-message');
+        successMessage.style.display = 'none';
+
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.style.display = 'none';
+
+
+        if (response.ok) {
+          successMessage.style.display = 'block';
+        } else {
+          errorMessage.style.display = 'block';
+        }
+
+        loading.style.display = 'none';
+
+
+        const data = await response.json();
+        console.log('Register response:', data);
+
+        // Arahkan ke halaman dashboard setelah login
+        window.location.href = '/dashboard';
+
+
+      } catch (error) {
+        console.error('Error during register:', error);
+
+      }
+    }
+  </script>
+</body>
+</html>
